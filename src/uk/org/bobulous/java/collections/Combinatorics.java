@@ -370,37 +370,4 @@ public final class Combinatorics {
 		}
 		return allCombinations;
 	}
-
-	// TODO: Delete this main method once basic testing is done and unit tests are in place.
-	public static void main(String[] args) {
-		Set<String> someWords = new HashSet<>(8);
-		someWords.add("potatis");
-		someWords.add("grönsaker");
-		someWords.add("leksak");
-		someWords.add("husen");
-		someWords.add("häster");
-		someWords.add("penna");
-		someWords.add("strumporna");
-		someWords.add("flygplanet");
-		someWords.add("musikerna");
-		someWords.add("första");
-		someWords.add("andra");
-		someWords.add("tredje");
-		someWords.add("fjärdje");
-		someWords.add("bushallplatsen");
-		someWords.add("tågstationen");
-		someWords.add("läkaren");
-		someWords.add("kvinnorna");
-		someWords.add("katten");
-		someWords.add("smörgås");
-		someWords.add("ordet");
-
-		Set<? extends Set<String>> allWordCombinations = combinationsSorted(
-				someWords);
-//		Set<? extends Set<String>> allWordCombinations = combinations(someWords, 19);
-//		Set<? extends Set<String>> allWordCombinations = combinations(someWords,
-//				new GenericInterval<>(3, 5));
-		System.out.println(allWordCombinations.size()
-				+ " word combinations found:\n" + allWordCombinations);
-	}
 }
