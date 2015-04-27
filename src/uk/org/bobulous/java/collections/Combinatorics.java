@@ -121,25 +121,7 @@ public final class Combinatorics {
 			Interval<Integer> chooseInterval) {
 		Objects.requireNonNull(sourceElements);
 		Objects.requireNonNull(chooseInterval);
-		if (chooseInterval.getLowerEndpoint() < 0) {
-			throw new IllegalArgumentException(
-					"The lower endpoint of chooseInterval must be non-negative.");
-		}
-		if (chooseInterval.getUpperEndpoint() > sourceElements.size()) {
-			throw new IllegalArgumentException(
-					"The upper endpoint of chooseInterval cannot be greater than the size of sourceElements.");
-		}
-		if (chooseInterval.getUpperEndpoint() - chooseInterval.
-				getLowerEndpoint() < 2) {
-			// Check that the interval is not an empty set (which does not
-			// permit any sizes at all).
-			if (!chooseInterval.includes(chooseInterval.getLowerEndpoint())
-					&& !chooseInterval.includes(chooseInterval.
-							getUpperEndpoint())) {
-				throw new IllegalArgumentException(
-						"chooseInterval cannot be an empty set.");
-			}
-		}
+		validateInterval(chooseInterval, sourceElements.size());
 		return combinations(sourceElements, false, chooseInterval);
 	}
 
@@ -310,31 +292,40 @@ public final class Combinatorics {
 	public static final <T extends Comparable<T>> SortedSet<SortedSet<T>> combinationsSorted(
 			Set<T> sourceElements, Interval<Integer> chooseInterval) {
 		Objects.requireNonNull(sourceElements);
-		if (sourceElements.contains(null)) {
+		if (SetUtilities.containsNull(sourceElements)) {
 			throw new NullPointerException(
 					"sourceElements must not contain a null element.");
 		}
 		Objects.requireNonNull(chooseInterval);
-		if (chooseInterval.getLowerEndpoint() < 0) {
+		validateInterval(chooseInterval, sourceElements.size());
+		return combinationsSorted(sourceElements, false, chooseInterval);
+	}
+
+	/*
+	Check that the interval permits at least one integer between zero and the
+	specified maximum combination size, and no integer less than zero or greater
+	than the maximum combination size.
+	*/
+	private static void validateInterval(Interval<Integer> interval,
+			int maxCombinationSize) {
+		Integer lower = interval.getLowerEndpoint();
+		if (lower == null || lower < 0) {
 			throw new IllegalArgumentException(
 					"The lower endpoint of chooseInterval must be non-negative.");
 		}
-		if (chooseInterval.getUpperEndpoint() > sourceElements.size()) {
+		Integer upper = interval.getUpperEndpoint();
+		if (upper == null || upper > maxCombinationSize) {
 			throw new IllegalArgumentException(
 					"The upper endpoint of chooseInterval cannot be greater than the size of sourceElements.");
 		}
-		if (chooseInterval.getUpperEndpoint() - chooseInterval.
-				getLowerEndpoint() < 2) {
-			// Check that the interval is not an empty set (which does not
-			// permit any sizes at all).
-			if (!chooseInterval.includes(chooseInterval.getLowerEndpoint())
-					&& !chooseInterval.includes(chooseInterval.
-							getUpperEndpoint())) {
+		// Check that the interval is not an empty set (which does not permit
+		// any integers at all).
+		if (upper < lower || upper - lower < 2) {
+			if (!interval.includes(lower) && !interval.includes(upper)) {
 				throw new IllegalArgumentException(
 						"chooseInterval cannot be an empty set.");
 			}
 		}
-		return combinationsSorted(sourceElements, false, chooseInterval);
 	}
 
 	/*

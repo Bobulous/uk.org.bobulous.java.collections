@@ -65,13 +65,12 @@ import java.util.SortedSet;
  * as the <code>compareTo</code> method of the element type <code>T</code> is
  * consistent with equals.</p>
  * <p>
- * Neither of the <code>SortedSet</code> instances passed to the
- * <code>compare</code> method should contain a <code>null</code> element
- * otherwise there is a risk that a <code>NullPointerException</code> will be
- * thrown. This is because <code>null</code> is not an instance of any class and
- * so cannot have a place within the natural order of any type, and it is the
- * natural order which is used by <code>compare</code> to compare the two
- * sets.</p>
+ * If either of the <code>SortedSet</code> instances passed to the
+ * <code>compare</code> method contains a <code>null</code> element then a
+ * <code>NullPointerException</code> will be thrown. This is because
+ * <code>null</code> is not an instance of any class and so cannot have a place
+ * within the natural order of any type, and it is the natural order which is
+ * used by <code>compare</code> to compare the two sets.</p>
  *
  * @author Bobulous <http://www.bobulous.org.uk/>
  * @param <T> the type of the elements contained in the <code>SortedSet</code>.
@@ -122,6 +121,11 @@ public final class SortedSetComparator<T extends Comparable<T>> implements
 	public int compare(SortedSet<T> o1, SortedSet<T> o2) {
 		Objects.requireNonNull(o1);
 		Objects.requireNonNull(o2);
+		if (SetUtilities.containsNull(o1) || SetUtilities.containsNull(o2)) {
+			throw new NullPointerException(
+					"SortedSetComparator cannot compare any Set which contains "
+					+ "a null element.");
+		}
 		int sizeComparison = Integer.compare(o1.size(), o2.size());
 		if (sizeComparison != 0) {
 			// Sizes of the two sets differ, so the one with fewest elements is
