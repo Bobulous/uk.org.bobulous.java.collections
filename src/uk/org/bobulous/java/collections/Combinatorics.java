@@ -49,13 +49,17 @@ public final class Combinatorics {
 	 * @param <T> the type of the elements contained by the provided set.
 	 * @param sourceElements a <code>Set</code> which represents the source set
 	 * of elements to be used in producing combinations. Cannot be
-	 * <code>null</code>.
+	 * <code>null</code> and cannot contain more than thirty elements.
 	 * @return a <code>Set</code> which contains one or more sets, one for each
 	 * possible combination of the elements found in
 	 * <code>sourceElements</code>.
 	 */
 	public static final <T> Set<Set<T>> combinations(Set<T> sourceElements) {
 		Objects.requireNonNull(sourceElements);
+		if (sourceElements.size() > 30) {
+			throw new IllegalArgumentException(
+					"Size of sourceElements cannot be greater than thirty elements.");
+		}
 		return combinations(sourceElements, true, null);
 	}
 
@@ -71,7 +75,7 @@ public final class Combinatorics {
 	 * @param <T> the type of the elements contained in the provided set.
 	 * @param sourceElements a <code>Set</code> which represents the source set
 	 * of elements to be used in producing combinations. Cannot be
-	 * <code>null</code>.
+	 * <code>null</code> and cannot contain more than thirty elements.
 	 * @param choose the number of source elements to be included in each
 	 * combination returned by this method. The number must be at least zero and
 	 * must not be greater than the size of <code>sourceElements</code>.
@@ -82,6 +86,10 @@ public final class Combinatorics {
 	public static final <T> Set<Set<T>> combinations(Set<T> sourceElements,
 			int choose) {
 		Objects.requireNonNull(sourceElements);
+		if (sourceElements.size() > 30) {
+			throw new IllegalArgumentException(
+					"Size of sourceElements cannot be greater than thirty elements.");
+		}
 		if (choose < 0) {
 			throw new IllegalArgumentException(
 					"Parameter choose must be non-negative.");
@@ -106,7 +114,7 @@ public final class Combinatorics {
 	 * @param <T> the type of the elements contained in the provided set.
 	 * @param sourceElements a <code>Set</code> which represents the source set
 	 * of elements to be used to produce combinations. Cannot be
-	 * <code>null</code>.
+	 * <code>null</code> and cannot contain more than thirty elements.
 	 * @param chooseInterval an <code>Interval&lt;Integer&gt;</code> which
 	 * specifies the interval of combination sizes to be included in the set of
 	 * combinations returned by this method. The lower endpoint value must be at
@@ -121,6 +129,10 @@ public final class Combinatorics {
 			Interval<Integer> chooseInterval) {
 		Objects.requireNonNull(sourceElements);
 		Objects.requireNonNull(chooseInterval);
+		if (sourceElements.size() > 30) {
+			throw new IllegalArgumentException(
+					"Size of sourceElements cannot be greater than thirty elements.");
+		}
 		validateInterval(chooseInterval, sourceElements.size());
 		return combinations(sourceElements, false, chooseInterval);
 	}
@@ -140,7 +152,7 @@ public final class Combinatorics {
 		// the need for the HashSet to resize itself at any point.
 		int initialSetCapacity = 1 + combinationCount * 4 / 3;
 		Set<Set<T>> allCombinations = new HashSet<>(initialSetCapacity);
-		for (long combination = 0; combination < combinationCount; ++combination) {
+		for (int combination = 0; combination < combinationCount; ++combination) {
 			Set<T> currentCombination;
 			currentCombination = new HashSet<>();
 			BitSet comboMask = BitSet.valueOf(new long[]{combination});
@@ -189,8 +201,8 @@ public final class Combinatorics {
 	 * @param <T> the type of the elements contained by the provided set. Must
 	 * be a type which has a natural order.
 	 * @param sourceElements a <code>Set</code> which represents the source set
-	 * of elements to be combined. Cannot be <code>null</code>, and cannot be a
-	 * set which contains a <code>null</code> element.
+	 * of elements to be combined. Cannot be <code>null</code>, cannot contain a
+	 * <code>null</code> element, and cannot contain more than thirty elements.
 	 * @return a <code>SortedSet</code> which contains one or more sets, one for
 	 * each possible combination of the elements found in
 	 * <code>sourceElements</code>, sorted by combination sizes and by the
@@ -199,6 +211,10 @@ public final class Combinatorics {
 	public static final <T extends Comparable<T>> SortedSet<SortedSet<T>> combinationsSorted(
 			Set<T> sourceElements) {
 		Objects.requireNonNull(sourceElements);
+		if (sourceElements.size() > 30) {
+			throw new IllegalArgumentException(
+					"Size of sourceElements cannot be greater than thirty elements.");
+		}
 		if (sourceElements.contains(null)) {
 			throw new NullPointerException(
 					"sourceElements must not contain a null element.");
@@ -226,8 +242,8 @@ public final class Combinatorics {
 	 * @param <T> the type of the elements contained by the provided set. Must
 	 * be a type which has a natural order.
 	 * @param sourceElements a <code>Set</code> which represents the source set
-	 * of elements to be combined. Cannot be <code>null</code>, and cannot be a
-	 * set which contains a <code>null</code> element.
+	 * of elements to be combined. Cannot be <code>null</code>, cannot contain a
+	 * <code>null</code> element, and cannot contain more than thirty elements.
 	 * @param choose the number of source elements to be included in the
 	 * combinations returned by this method.
 	 * @return a <code>SortedSet</code> which contains one or more sets, one for
@@ -238,6 +254,10 @@ public final class Combinatorics {
 	public static final <T extends Comparable<T>> SortedSet<SortedSet<T>> combinationsSorted(
 			Set<T> sourceElements, int choose) {
 		Objects.requireNonNull(sourceElements);
+		if (sourceElements.size() > 30) {
+			throw new IllegalArgumentException(
+					"Size of sourceElements cannot be greater than thirty elements.");
+		}
 		if (sourceElements.contains(null)) {
 			throw new NullPointerException(
 					"sourceElements must not contain a null element.");
@@ -276,8 +296,8 @@ public final class Combinatorics {
 	 * @param <T> the type of the elements contained by the provided set. Must
 	 * be a type which has a natural order.
 	 * @param sourceElements a <code>Set</code> which represents the source set
-	 * of elements to be combined. Cannot be <code>null</code>, and cannot be a
-	 * set which contains a <code>null</code> element.
+	 * of elements to be combined. Cannot be <code>null</code>, cannot contain a
+	 * <code>null</code> element, and cannot contain more than thirty elements.
 	 * @param chooseInterval an <code>Interval&lt;Integer&gt;</code> which
 	 * specifies the interval of combination sizes to be included in the set of
 	 * combinations returned by this method. The lower endpoint value must be at
@@ -292,6 +312,10 @@ public final class Combinatorics {
 	public static final <T extends Comparable<T>> SortedSet<SortedSet<T>> combinationsSorted(
 			Set<T> sourceElements, Interval<Integer> chooseInterval) {
 		Objects.requireNonNull(sourceElements);
+		if (sourceElements.size() > 30) {
+			throw new IllegalArgumentException(
+					"Size of sourceElements cannot be greater than thirty elements.");
+		}
 		if (SetUtilities.containsNull(sourceElements)) {
 			throw new NullPointerException(
 					"sourceElements must not contain a null element.");
@@ -302,10 +326,10 @@ public final class Combinatorics {
 	}
 
 	/*
-	Check that the interval permits at least one integer between zero and the
-	specified maximum combination size, and no integer less than zero or greater
-	than the maximum combination size.
-	*/
+	 Check that the interval permits at least one integer between zero and the
+	 specified maximum combination size, and no integer less than zero or greater
+	 than the maximum combination size.
+	 */
 	private static void validateInterval(Interval<Integer> interval,
 			int maxCombinationSize) {
 		Integer lower = interval.getLowerEndpoint();
@@ -336,11 +360,11 @@ public final class Combinatorics {
 			Interval<Integer> chooseInterval) {
 		List<T> sourceList = new ArrayList<>(sourceElements);
 		int elementCount = sourceList.size();
-		final long combinationCount = (long) Math.
+		final int combinationCount = (int) Math.
 				pow(2.0, (double) elementCount);
 		SortedSet<SortedSet<T>> allCombinations = new TreeSet<>(
 				SortedSetComparator.<T>getInstance());
-		for (long combination = 0; combination < combinationCount; ++combination) {
+		for (int combination = 0; combination < combinationCount; ++combination) {
 			SortedSet<T> currentCombination;
 			currentCombination = new TreeSet<>();
 			BitSet comboMask = BitSet.valueOf(new long[]{combination});
