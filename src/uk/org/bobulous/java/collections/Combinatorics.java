@@ -215,7 +215,7 @@ public final class Combinatorics {
 			throw new IllegalArgumentException(
 					"Size of sourceElements cannot be greater than thirty elements.");
 		}
-		if (sourceElements.contains(null)) {
+		if (SetUtilities.containsNull(sourceElements)) {
 			throw new NullPointerException(
 					"sourceElements must not contain a null element.");
 		}
@@ -258,7 +258,7 @@ public final class Combinatorics {
 			throw new IllegalArgumentException(
 					"Size of sourceElements cannot be greater than thirty elements.");
 		}
-		if (sourceElements.contains(null)) {
+		if (SetUtilities.containsNull(sourceElements)) {
 			throw new NullPointerException(
 					"sourceElements must not contain a null element.");
 		}
