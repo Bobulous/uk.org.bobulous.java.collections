@@ -33,6 +33,27 @@ public final class Combinatorics {
 	}
 
 	/**
+	 * Calculates the total number of combinations of all sizes which could be
+	 * generated from a set of the given size. The number returned will count
+	 * the empty set in the total.
+	 *
+	 * @param setSize the size of a source set. Cannot be larger than 62.
+	 * @return the number of combinations of all sizes which could be generated
+	 * from a set which has <code>setSize</code> elements.
+	 */
+	public static final long numberOfCombinations(int setSize) {
+		if (setSize < 0) {
+			throw new IllegalArgumentException(
+					"setSize cannot be less than zero.");
+		}
+		if (setSize > 62) {
+			throw new IllegalArgumentException(
+					"setSize cannot be greater than 62.");
+		}
+		return 1L << setSize;
+	}
+
+	/**
 	 * Finds every combination which can be produced using the elements from the
 	 * provided source set.
 	 * <p>
