@@ -32,6 +32,7 @@ public final class SetUtilities {
 	 * will throw a <code>NullPointerException</code> if the underlying
 	 * <code>Set</code> instance is a type which does not permit
 	 * <code>null</code> as an element.</p>
+	 * TODO: Double-check that the JDK libraries do not provide a safe way of doing this already.
 	 *
 	 * @param set a <code>Set</code> to check for a <code>null</code> element.
 	 * @return <code>true</code> if the specified <code>Set</code> contains
