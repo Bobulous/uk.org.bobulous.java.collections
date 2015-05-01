@@ -66,11 +66,10 @@ public final class Combinatorics {
 	 *
 	 * @param setSize the number of elements in the source set. Cannot be less
 	 * than zero and cannot be larger than 62.
-	 * @param chooseSize the number of elements in each combination.
-	 * Cannot be less than zero and cannot be larger than <code>setSize</code>.
-	 * @return the number of combinations of size <code>chooseSize</code>
-	 * which could be generated from a set which has <code>setSize</code>
-	 * elements.
+	 * @param chooseSize the number of elements in each combination. Cannot be
+	 * less than zero and cannot be larger than <code>setSize</code>.
+	 * @return the number of combinations of size <code>chooseSize</code> which
+	 * could be generated from a set which has <code>setSize</code> elements.
 	 */
 	public static final long numberOfCombinations(int setSize, int chooseSize) {
 		if (setSize < 0) {
@@ -102,7 +101,7 @@ public final class Combinatorics {
 		if (chooseSize == 0 || chooseSize == setSize) {
 			return 1L;
 		}
-		if(chooseSize == 1 || chooseSize == setSize - 1) {
+		if (chooseSize == 1 || chooseSize == setSize - 1) {
 			return setSize;
 		}
 		/*
@@ -136,12 +135,57 @@ public final class Combinatorics {
 				+ denominatorFactors);
 
 		// Divide the numerator by the denominator to get the final result.
-		return bigIntegerDivision(numeratorFactors, denominatorFactors);
+		if (setSize > 28) {
+			// The long primitive cannot handle a numerator which is larger than
+			// 28! divided by 14! so if the size of the set is greater than 28
+			// we must switch to using BigInteger for the calculations.
+			return bigIntegerDivision(numeratorFactors, denominatorFactors);
+		} else {
+			return longDivision(numeratorFactors, denominatorFactors);
+		}
 	}
 
-	/*
-	 Use BigInteger for this calculation because even small set sizes generate
-	 a numerator product which is larger than the long type in Java can handle.
+	/**
+	 * Calculates the product of all specified numerator factors divided by the
+	 * product of all the specified denominator factors. A <code>long</code>
+	 * primitive is used for the calculations, so the product of the numerator
+	 * factors cannot have a value which is greater than 28!/14! (twenty-eight
+	 * factorial divided by fourteen factorial).
+	 *
+	 * @param numeratorFactors a <code>Collection&lt;Integer&gt;</code> which
+	 * contains all of the factors which make up the numerator.
+	 * @param denominatorFactors a <code>Collection&lt;Integer&gt;</code> which
+	 * contains all of the factors which make up the denominator.
+	 * @return the numerator product divided by the denominator product.
+	 */
+	private static long longDivision(Collection<Integer> numeratorFactors,
+			Collection<Integer> denominatorFactors) {
+		// Calculate the numerator and the denominator products.
+		long numerator = 1L;
+		for (int x : numeratorFactors) {
+			numerator *= x;
+			System.out.println("numerator: " + numerator);
+		}
+		long denominator = 1L;
+		for (int x : denominatorFactors) {
+			denominator *= x;
+			System.out.println("denominator: " + denominator);
+		}
+		// Return the numerator divided by the denominator.
+		return numerator / denominator;
+	}
+
+	/**
+	 * Calculates the product of all specified numerator factors divided by the
+	 * product of all the specified denominator factors. A
+	 * <code>BigDecimal</code> primitive is used for the calculations, so the
+	 * product of the numerator factors can be arbitrarily large.
+	 *
+	 * @param numeratorFactors a <code>Collection&lt;Integer&gt;</code> which
+	 * contains all of the factors which make up the numerator.
+	 * @param denominatorFactors a <code>Collection&lt;Integer&gt;</code> which
+	 * contains all of the factors which make up the denominator.
+	 * @return the numerator product divided by the denominator product.
 	 */
 	private static long bigIntegerDivision(Collection<Integer> numeratorFactors,
 			Collection<Integer> denominatorFactors) {
