@@ -7,10 +7,15 @@
  */
 package uk.org.bobulous.java.collections;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
@@ -37,7 +42,8 @@ public final class Combinatorics {
 	 * generated from a set of the given size. The number returned will count
 	 * the empty set in the total.
 	 *
-	 * @param setSize the size of a source set. Cannot be larger than 62.
+	 * @param setSize the number of elements in the source set. Cannot be less
+	 * than zero and cannot be larger than 62.
 	 * @return the number of combinations of all sizes which could be generated
 	 * from a set which has <code>setSize</code> elements.
 	 */
@@ -51,6 +57,107 @@ public final class Combinatorics {
 					"setSize cannot be greater than 62.");
 		}
 		return 1L << setSize;
+	}
+
+	/**
+	 * Calculates the number of combinations of the specified size which could
+	 * be generated from a source set of the specified size. The number returned
+	 * will count the empty set in the total.
+	 *
+	 * @param setSize the number of elements in the source set. Cannot be less
+	 * than zero and cannot be larger than 62.
+	 * @param chooseSize the number of elements in each combination.
+	 * Cannot be less than zero and cannot be larger than <code>setSize</code>.
+	 * @return the number of combinations of size <code>chooseSize</code>
+	 * which could be generated from a set which has <code>setSize</code>
+	 * elements.
+	 */
+	public static final long numberOfCombinations(int setSize, int chooseSize) {
+		if (setSize < 0) {
+			throw new IllegalArgumentException(
+					"setSize cannot be less than zero.");
+		}
+		if (setSize > 62) {
+			throw new IllegalArgumentException(
+					"setSize cannot be greater than 62.");
+		}
+		if (chooseSize < 0) {
+			throw new IllegalArgumentException(
+					"chooseSize cannot be less than zero.");
+		}
+		if (chooseSize > setSize) {
+			throw new IllegalArgumentException(
+					"chooseSize cannot be greater than setSize.");
+		}
+		return numberOfCombinationsWithoutValidation(setSize, chooseSize);
+	}
+
+	/*
+	 Use a private method without parameter validation to handle the calculations
+	 which will be called repeatedly when numerOfCombinations is called with an
+	 interval of choose sizes.
+	 */
+	private static long numberOfCombinationsWithoutValidation(int setSize,
+			int chooseSize) {
+		if (chooseSize == 0 || chooseSize == setSize) {
+			return 1L;
+		}
+		if(chooseSize == 1 || chooseSize == setSize - 1) {
+			return setSize;
+		}
+		/*
+		 To calculate n!/(k!(n-k)!) where n==setSize and k==chooseSize and where
+		 n! is the factorial function applied to n, take a shortcut by factoring
+		 out all common factors in the numerator and denominator.
+		 If k is larger than (n-k) then factor out all values from k! from both
+		 the numerator and the denominator.
+		 If (n-k) is larger than k then factor out all values from (n-k)! from
+		 both the numerator and the denominator.
+		 */
+		int sizeMinusChoose = setSize - chooseSize;
+		int breakPoint = Math.max(chooseSize, sizeMinusChoose);
+		int numeratorStartPoint = Math.min(chooseSize, sizeMinusChoose);
+		// Start off by gathering all numbers which have not been factored out
+		// of the numerator.
+		List<Integer> numeratorFactors = new ArrayList<>(setSize - breakPoint);
+		for (int x = setSize; x > breakPoint; --x) {
+			numeratorFactors.add(x);
+		}
+		// Now gather all the numbers which have not been factored out of the
+		// denominator.
+		ArrayList<Integer> denominatorFactors
+				= new ArrayList(numeratorStartPoint - 1);
+		for (int x = numeratorStartPoint; x > 1; --x) {
+			denominatorFactors.add(x);
+		}
+		System.out.println("numeratorFactors before refactoring:\n"
+				+ numeratorFactors);
+		System.out.println("denominatorFactors before refactoring:\n"
+				+ denominatorFactors);
+
+		// Divide the numerator by the denominator to get the final result.
+		return bigIntegerDivision(numeratorFactors, denominatorFactors);
+	}
+
+	/*
+	 Use BigInteger for this calculation because even small set sizes generate
+	 a numerator product which is larger than the long type in Java can handle.
+	 */
+	private static long bigIntegerDivision(Collection<Integer> numeratorFactors,
+			Collection<Integer> denominatorFactors) {
+		// Calculate the numerator and the denominator products.
+		BigInteger numerator = BigInteger.ONE;
+		for (int x : numeratorFactors) {
+			numerator = numerator.multiply(BigInteger.valueOf(x));
+			System.out.println("numerator: " + numerator);
+		}
+		BigInteger denominator = BigInteger.ONE;
+		for (int x : denominatorFactors) {
+			denominator = denominator.multiply(BigInteger.valueOf(x));
+			System.out.println("denominator: " + denominator);
+		}
+		// Return the numerator divided by the denominator.
+		return numerator.divide(denominator).longValue();
 	}
 
 	/**
