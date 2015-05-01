@@ -7,15 +7,12 @@
  */
 package uk.org.bobulous.java.collections;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
@@ -202,6 +199,47 @@ public final class Combinatorics {
 		}
 		// Return the numerator divided by the denominator.
 		return numerator.divide(denominator).longValue();
+	}
+
+	/**
+	 * Calculates the total number of combinations of the sizes permitted by the
+	 * supplied interval which could be generated from a source set of the
+	 * specified size.
+	 *
+	 * @param setSize the number of elements in the source set. Cannot be less
+	 * than zero and cannot be larger than 62.
+	 * @param chooseInterval an <code>Interval&lt;Integer&gt;</code> which defines
+	 * the interval of combinations sizes to be included in the returned count.
+	 * The interval cannot be empty, and the lower endpoint cannot be less than
+	 * zero, and the upper endpoint cannot be greater than <code>setSize</code>.
+	 * @return the number of combinations of the permitted sizes which could be
+	 * generated from a set which has <code>setSize</code> elements.
+	 */
+	public static final long numberOfCombinations(int setSize,
+			Interval<Integer> chooseInterval) {
+		if (setSize < 0) {
+			throw new IllegalArgumentException(
+					"setSize cannot be less than zero.");
+		}
+		if (setSize > 62) {
+			throw new IllegalArgumentException(
+					"setSize cannot be greater than 62.");
+		}
+		Objects.requireNonNull(chooseInterval);
+		validateInterval(chooseInterval, setSize);
+		int firstSize = chooseInterval.getLowerEndpoint();
+		int lastSize = chooseInterval.getUpperEndpoint();
+		long totalCombinationCount = 0;
+		for (int comboSize = firstSize; comboSize <= lastSize; ++comboSize) {
+			if (!chooseInterval.includes(comboSize)) {
+				// This size must be excluded by an open endpoint in the
+				// interval so skip to the next size.
+				continue;
+			}
+			totalCombinationCount += numberOfCombinationsWithoutValidation(
+					setSize, comboSize);
+		}
+		return totalCombinationCount;
 	}
 
 	/**
