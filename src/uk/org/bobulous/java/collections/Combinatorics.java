@@ -208,10 +208,11 @@ public final class Combinatorics {
 	 *
 	 * @param setSize the number of elements in the source set. Cannot be less
 	 * than zero and cannot be larger than 62.
-	 * @param chooseInterval an <code>Interval&lt;Integer&gt;</code> which defines
-	 * the interval of combinations sizes to be included in the returned count.
-	 * The interval cannot be empty, and the lower endpoint cannot be less than
-	 * zero, and the upper endpoint cannot be greater than <code>setSize</code>.
+	 * @param chooseInterval an <code>Interval&lt;Integer&gt;</code> which
+	 * defines the interval of combinations sizes to be included in the returned
+	 * count. The interval cannot be empty, and the lower endpoint cannot be
+	 * less than zero, and the upper endpoint cannot be greater than
+	 * <code>setSize</code>.
 	 * @return the number of combinations of the permitted sizes which could be
 	 * generated from a set which has <code>setSize</code> elements.
 	 */
@@ -227,6 +228,38 @@ public final class Combinatorics {
 		}
 		Objects.requireNonNull(chooseInterval);
 		validateInterval(chooseInterval, setSize);
+		// If the interval permits all combination sizes, or all but the zero
+		// and/or full set sizes, then the calculation can be simplified.
+		if (chooseInterval.includes(setSize)) {
+			if (chooseInterval.includes(0)) {
+				// The interval permits all possible combination sizes from zero
+				// up to and including the full set size, so call the basic
+				// version of this method.
+				return numberOfCombinations(setSize);
+			} else if (chooseInterval.includes(1)) {
+				// The interval permits all possible combinations except the
+				// empty set, so simply subtract one from the count of all
+				// possible combinations.
+				return numberOfCombinations(setSize) - 1;
+			}
+		} else if (chooseInterval.includes(0)) {
+			if (chooseInterval.includes(setSize - 1)) {
+				// The interval does not permit the full set size, but it does
+				// permit every other size, so simply subtract one from the
+				// count of all possible combinations (because only the
+				// combination which holds the entire source set is being
+				// excluded).
+				return numberOfCombinations(setSize) - 1;
+			}
+		} else if (chooseInterval.includes(1) && chooseInterval.includes(setSize
+				- 1)) {
+			// The interval does not permit the combination of size zero (the
+			// empty set) nor does it permit the combination which contains all
+			// of the source elements, but it does permit every other size of
+			// combination. So simply subtract two from the count of all
+			// possible combinations.
+			return numberOfCombinations(setSize) - 2;
+		}
 		int firstSize = chooseInterval.getLowerEndpoint();
 		int lastSize = chooseInterval.getUpperEndpoint();
 		long totalCombinationCount = 0;
@@ -270,7 +303,7 @@ public final class Combinatorics {
 			throw new IllegalArgumentException(
 					"Size of sourceElements cannot be greater than thirty elements.");
 		}
-		return combinations(sourceElements, true, null);
+		return generateCombinations(sourceElements, true, null);
 	}
 
 	/**
@@ -308,8 +341,9 @@ public final class Combinatorics {
 			throw new IllegalArgumentException(
 					"Parameter choose cannot be greater than the size of sourceElements.");
 		}
-		return combinations(sourceElements, false, new GenericInterval<>(choose,
-				choose));
+		return generateCombinations(sourceElements, false,
+				new GenericInterval<>(choose,
+						choose));
 	}
 
 	/**
@@ -344,25 +378,32 @@ public final class Combinatorics {
 					"Size of sourceElements cannot be greater than thirty elements.");
 		}
 		validateInterval(chooseInterval, sourceElements.size());
-		return combinations(sourceElements, false, chooseInterval);
+		return generateCombinations(sourceElements, false, chooseInterval);
 	}
 
 	/*
 	 Private method to contain the code used by the public overloaded methods.
 	 */
-	private static <T> Set<Set<T>> combinations(Set<T> sourceElements,
+	private static <T> Set<Set<T>> generateCombinations(Set<T> sourceElements,
 			boolean chooseAll, Interval<Integer> chooseInterval) {
 		List<T> sourceList = new ArrayList<>(sourceElements);
 		int elementCount = sourceList.size();
-		final int combinationCount = (int) Math.
-				pow(2.0, (double) elementCount);
+		final long combinationCount;
+		if (chooseAll) {
+			combinationCount = numberOfCombinations(elementCount);
+		} else {
+			combinationCount = numberOfCombinations(elementCount,
+					chooseInterval);
+		}
 		// The final set will always contain combinationCount elements, so it
 		// makes sense to set the capacity of the HashSet so that
 		// combinationCount is less than 75% of the capacity. This should avoid
 		// the need for the HashSet to resize itself at any point.
-		int initialSetCapacity = 1 + combinationCount * 4 / 3;
-		Set<Set<T>> allCombinations = new HashSet<>(initialSetCapacity);
-		for (int combination = 0; combination < combinationCount; ++combination) {
+		long idealSetCapacity = 1L + combinationCount * 4L / 3L;
+		Set<Set<T>> allCombinations = new HashSet<>(idealSetCapacity
+				> Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) idealSetCapacity);
+		int maxBitMaskValue = 1 << elementCount;
+		for (int combination = 0; combination < maxBitMaskValue; ++combination) {
 			Set<T> currentCombination;
 			currentCombination = new HashSet<>();
 			BitSet comboMask = BitSet.valueOf(new long[]{combination});
@@ -429,7 +470,7 @@ public final class Combinatorics {
 			throw new NullPointerException(
 					"sourceElements must not contain a null element.");
 		}
-		return combinationsSorted(sourceElements, true, null);
+		return generateCombinationsSorted(sourceElements, true, null);
 	}
 
 	/**
@@ -480,7 +521,7 @@ public final class Combinatorics {
 			throw new IllegalArgumentException(
 					"Parameter choose cannot be greater than the size of sourceElements.");
 		}
-		return combinationsSorted(sourceElements, false, new GenericInterval<>(
+		return generateCombinationsSorted(sourceElements, false, new GenericInterval<>(
 				choose, choose));
 	}
 
@@ -532,7 +573,7 @@ public final class Combinatorics {
 		}
 		Objects.requireNonNull(chooseInterval);
 		validateInterval(chooseInterval, sourceElements.size());
-		return combinationsSorted(sourceElements, false, chooseInterval);
+		return generateCombinationsSorted(sourceElements, false, chooseInterval);
 	}
 
 	/*
@@ -565,16 +606,15 @@ public final class Combinatorics {
 	/*
 	 Private method to contain the code used by the public overloaded methods.
 	 */
-	private static <T extends Comparable<T>> SortedSet<SortedSet<T>> combinationsSorted(
+	private static <T extends Comparable<T>> SortedSet<SortedSet<T>> generateCombinationsSorted(
 			Set<T> sourceElements, boolean chooseAll,
 			Interval<Integer> chooseInterval) {
 		List<T> sourceList = new ArrayList<>(sourceElements);
 		int elementCount = sourceList.size();
-		final int combinationCount = (int) Math.
-				pow(2.0, (double) elementCount);
 		SortedSet<SortedSet<T>> allCombinations = new TreeSet<>(
 				SortedSetComparator.<T>getInstance());
-		for (int combination = 0; combination < combinationCount; ++combination) {
+		int maxBitMaskValue = 1 << elementCount;
+		for (int combination = 0; combination < maxBitMaskValue; ++combination) {
 			SortedSet<T> currentCombination;
 			currentCombination = new TreeSet<>();
 			BitSet comboMask = BitSet.valueOf(new long[]{combination});
