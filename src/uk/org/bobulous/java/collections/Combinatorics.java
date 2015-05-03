@@ -635,4 +635,29 @@ public final class Combinatorics {
 		}
 		return allCombinations;
 	}
+	
+	/**
+	 * Returns the number of permutations which would exist for a set of the
+	 * specified size.
+	 *
+	 * @param setSize the number of elements in a set. Cannot be less than one
+	 * and cannot be greater than twenty.
+	 * @return the number of permutations which could be generated from a set of
+	 * the given size.
+	 */
+	public static final long numberOfPermutations(int setSize) {
+		if (setSize < 1) {
+			throw new IllegalArgumentException(
+					"setSize must be greater than zero.");
+		}
+		if (setSize > 20) {
+			throw new IllegalArgumentException(
+					"setSize cannot be greater than twenty.");
+		}
+		long permCount = 1L;
+		for (int multiplier = 2; multiplier <= setSize; ++multiplier) {
+			permCount *= multiplier;
+		}
+		return permCount;
+	}
 }
