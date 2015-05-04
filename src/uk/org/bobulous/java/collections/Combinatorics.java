@@ -182,10 +182,6 @@ public final class Combinatorics {
 		for (int x = numeratorStartPoint; x > 1; --x) {
 			denominatorFactors.add(x);
 		}
-		System.out.println("numeratorFactors before refactoring:\n"
-				+ numeratorFactors);
-		System.out.println("denominatorFactors before refactoring:\n"
-				+ denominatorFactors);
 
 		// Divide the numerator by the denominator to get the final result.
 		if (setSize > 28) {
@@ -217,12 +213,10 @@ public final class Combinatorics {
 		long numerator = 1L;
 		for (int x : numeratorFactors) {
 			numerator *= x;
-			System.out.println("numerator: " + numerator);
 		}
 		long denominator = 1L;
 		for (int x : denominatorFactors) {
 			denominator *= x;
-			System.out.println("denominator: " + denominator);
 		}
 		// Return the numerator divided by the denominator.
 		return numerator / denominator;
@@ -246,12 +240,10 @@ public final class Combinatorics {
 		BigInteger numerator = BigInteger.ONE;
 		for (int x : numeratorFactors) {
 			numerator = numerator.multiply(BigInteger.valueOf(x));
-			System.out.println("numerator: " + numerator);
 		}
 		BigInteger denominator = BigInteger.ONE;
 		for (int x : denominatorFactors) {
 			denominator = denominator.multiply(BigInteger.valueOf(x));
-			System.out.println("denominator: " + denominator);
 		}
 		// Return the numerator divided by the denominator.
 		return numerator.divide(denominator).longValue();
