@@ -11,8 +11,11 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
@@ -28,12 +31,65 @@ import uk.org.bobulous.java.intervals.Interval;
  */
 public final class Combinatorics {
 
+	/**
+	 * A map which holds every factorial which can be represented by a
+	 * <code>long</code> primitive. The domain contains only the integers zero
+	 * to twenty because the factorial function is not defined for negative
+	 * numbers, and the factorial of twenty-one is a number too large to be
+	 * represented by a long in Java.
+	 */
+	private static final Map<Byte, Long> MAP_FROM_N_TO_N_FACTORIAL;
+
+	static {
+		Map<Byte, Long> map = new HashMap<>(32);
+		map.put((byte) 0, 1L);
+		map.put((byte) 1, 1L);
+		map.put((byte) 2, 2L);
+		map.put((byte) 3, 6L);
+		map.put((byte) 4, 24L);
+		map.put((byte) 5, 120L);
+		map.put((byte) 6, 720L);
+		map.put((byte) 7, 5_040L);
+		map.put((byte) 8, 40_320L);
+		map.put((byte) 9, 362_880L);
+		map.put((byte) 10, 3_628_800L);
+		map.put((byte) 11, 39_916_800L);
+		map.put((byte) 12, 479_001_600L);
+		map.put((byte) 13, 6_227_020_800L);
+		map.put((byte) 14, 87_178_291_200L);
+		map.put((byte) 15, 1_307_674_368_000L);
+		map.put((byte) 16, 20_922_789_888_000L);
+		map.put((byte) 17, 355_687_428_096_000L);
+		map.put((byte) 18, 6_402_373_705_728_000L);
+		map.put((byte) 19, 121_645_100_408_832_000L);
+		map.put((byte) 20, 2_432_902_008_176_640_000L);
+		MAP_FROM_N_TO_N_FACTORIAL = Collections.unmodifiableMap(map);
+	}
+
 	/*
 	 Private constructor because this class is never intended to be instantiated.
 	 */
 	private Combinatorics() {
 	}
 
+	/**
+	 * Returns the factorial of the given number.
+	 *
+	 * @param n a number of at least zero and at most twenty.
+	 * @return the factorial of the given number.
+	 */
+	private static long factorial(int n) {
+		if (n < 0 || n > 20) {
+			throw new IllegalArgumentException(
+					"n must be at least zero and not greater than twenty.");
+		}
+		return MAP_FROM_N_TO_N_FACTORIAL.get((byte) n);
+	}
+
+	/*
+	*** COMBINATION METHODS
+	*/
+	
 	/**
 	 * Calculates the total number of combinations of all sizes which could be
 	 * generated from a set of the given size. The number returned will count
@@ -404,8 +460,6 @@ public final class Combinatorics {
 				> Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) idealSetCapacity);
 		int maxBitMaskValue = 1 << elementCount;
 		for (int combination = 0; combination < maxBitMaskValue; ++combination) {
-			Set<T> currentCombination;
-			currentCombination = new HashSet<>();
 			BitSet comboMask = BitSet.valueOf(new long[]{combination});
 			if (!chooseAll && !chooseInterval.includes(comboMask.cardinality())) {
 				// We are only interested in combinations which contain a number
@@ -414,6 +468,8 @@ public final class Combinatorics {
 				// outside of this interval then skip to the next comboMask.
 				continue;
 			}
+			Set<T> currentCombination = new HashSet<>(comboMask.cardinality()
+					* 4 / 3);
 			for (int elementIndex = 0; elementIndex < elementCount;
 					++elementIndex) {
 				if (comboMask.get(elementIndex)) {
@@ -521,8 +577,8 @@ public final class Combinatorics {
 			throw new IllegalArgumentException(
 					"Parameter choose cannot be greater than the size of sourceElements.");
 		}
-		return generateCombinationsSorted(sourceElements, false, new GenericInterval<>(
-				choose, choose));
+		return generateCombinationsSorted(sourceElements, false,
+				new GenericInterval<>(choose, choose));
 	}
 
 	/**
@@ -635,6 +691,10 @@ public final class Combinatorics {
 		}
 		return allCombinations;
 	}
+
+	/*
+	 *** PERMUTATION METHODS ***
+	 */
 	
 	/**
 	 * Returns the number of permutations which would exist for a set of the
@@ -654,10 +714,70 @@ public final class Combinatorics {
 			throw new IllegalArgumentException(
 					"setSize cannot be greater than twenty.");
 		}
-		long permCount = 1L;
-		for (int multiplier = 2; multiplier <= setSize; ++multiplier) {
-			permCount *= multiplier;
+		return factorial(setSize);
+	}
+
+	/**
+	 * Generates all permutations of the given <code>Set</code>.
+	 * <p>
+	 * Be warned that at a source set of size eleven will lead to heap memory
+	 * error unless at least 8GiB are allocated to the application. And a heap
+	 * memory error is almost certain with a source set of size twelve.</p>
+	 *
+	 * @param <T> the type of the elements contained in the supplied
+	 * <code>Set</code>.
+	 * @param sourceElements the source set which will be used to generate
+	 * permutations. Cannot be <code>null</code>, cannot contain a
+	 * <code>null</code> element and cannot contain more than twelve elements.
+	 * @return a <code>Set&lt;List&lt;T&gt;&gt;</code> which contains every
+	 * possible permutation of the source set.
+	 */
+	public static final <T> Set<List<T>> permutations(Set<T> sourceElements) {
+		Objects.requireNonNull(sourceElements);
+		int elementCount = sourceElements.size();
+		if (elementCount < 1) {
+			throw new IllegalArgumentException(
+					"sourceElements must contain at least one element.");
 		}
-		return permCount;
+		if (elementCount > 12) {
+			throw new IllegalArgumentException(
+					"sourceElements cannot contain more than twelve elements.");
+		}
+		if (SetUtilities.containsNull(sourceElements)) {
+			throw new NullPointerException(
+					"sourceElements cannot contain a null element.");
+		}
+		List<T> elements = new ArrayList<>(sourceElements);
+
+		int totalPermutationQuantity = (int) factorial(elementCount);
+		long idealSetCapacity = 1 + (int) (totalPermutationQuantity * 4L / 3L);
+		Set<List<T>> perms = new HashSet<>((int) idealSetCapacity);
+
+		// Add the initial list as the first permutation.
+		perms.add(new ArrayList<>(elements));
+
+		// Use Fuchs' Counting QuickPerm Algorithm to iterate through all
+		// remaining permutations. See http://quickperm.org/
+		int[] swapCount = new int[elementCount];
+		int elementIndex = 1;
+		while (elementIndex < elementCount) {
+			if (swapCount[elementIndex] < elementIndex) {
+				int swapIndex
+						= elementIndex % 2 == 0 ? 0 : swapCount[elementIndex];
+				T currentElement = elements.get(elementIndex);
+				T swapperElement = elements.get(swapIndex);
+				elements.set(elementIndex, swapperElement);
+				elements.set(swapIndex, currentElement);
+				perms.add(new ArrayList<>(elements));
+				++swapCount[elementIndex];
+				elementIndex = 1;
+			} else {
+				swapCount[elementIndex] = 0;
+				++elementIndex;
+			}
+		}
+
+		// Return the generated Set of all permutations.
+		return perms;
 	}
 }
