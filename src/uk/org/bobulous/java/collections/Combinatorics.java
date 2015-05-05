@@ -460,7 +460,7 @@ public final class Combinatorics {
 				// outside of this interval then skip to the next comboMask.
 				continue;
 			}
-			Set<T> currentCombination = new HashSet<>(comboMask.cardinality()
+			Set<T> currentCombination = new HashSet<>(1 + comboMask.cardinality()
 					* 4 / 3);
 			for (int elementIndex = 0; elementIndex < elementCount;
 					++elementIndex) {
@@ -742,7 +742,7 @@ public final class Combinatorics {
 		List<T> elements = new ArrayList<>(sourceElements);
 
 		int totalPermutationQuantity = (int) factorial(elementCount);
-		long idealSetCapacity = 1 + (int) (totalPermutationQuantity * 4L / 3L);
+		long idealSetCapacity = 1L + (int) (totalPermutationQuantity * 4L / 3L);
 		Set<List<T>> perms = new HashSet<>((int) idealSetCapacity);
 
 		// Add the initial list as the first permutation.
