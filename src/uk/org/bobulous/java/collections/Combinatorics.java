@@ -432,7 +432,8 @@ public final class Combinatorics {
 	/*
 	 Private method to contain the code used by the public overloaded methods.
 	 */
-	private static <T> Set<Set<T>> generateCombinations(Set<T> sourceElements,
+	private static <T> Set<Set<T>> generateCombinations(
+			Set<T> sourceElements,
 			boolean chooseAll, Interval<Integer> chooseInterval) {
 		List<T> sourceList = new ArrayList<>(sourceElements);
 		int elementCount = sourceList.size();
@@ -450,29 +451,67 @@ public final class Combinatorics {
 		long idealSetCapacity = 1L + combinationCount * 4L / 3L;
 		Set<Set<T>> allCombinations = new HashSet<>(idealSetCapacity
 				> Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) idealSetCapacity);
-		int maxBitMaskValue = 1 << elementCount;
-		for (int combination = 0; combination < maxBitMaskValue; ++combination) {
-			BitSet comboMask = BitSet.valueOf(new long[]{combination});
-			if (!chooseAll && !chooseInterval.includes(comboMask.cardinality())) {
+
+		for (int comboSize = 0; comboSize <= elementCount; ++comboSize) {
+			if (!chooseAll && !chooseInterval.includes(comboSize)) {
 				// We are only interested in combinations which contain a number
-				// of elements permitted by the chooseInterval. If
-				// this comboMask would result in number of elements which falls
-				// outside of this interval then skip to the next comboMask.
+				// of elements permitted by the chooseInterval.
 				continue;
 			}
-			Set<T> currentCombination = new HashSet<>(1 + comboMask.cardinality()
-					* 4 / 3);
-			for (int elementIndex = 0; elementIndex < elementCount;
-					++elementIndex) {
-				if (comboMask.get(elementIndex)) {
-					currentCombination.add(sourceList.get(elementIndex));
-				}
+			if (comboSize == 0) {
+				allCombinations.add(new HashSet<>(1));
+				continue;
 			}
-			allCombinations.add(currentCombination);
+			
+			// Use an array of "pegs" which each point to an element index. Each
+			// peg must point to a unique element index, and new combinations
+			// will be found by shifting the pegs across the element indices
+			// from left (element index zero) to right (element index equal to
+			// comboSize - 1) until all possible combinations have been found.
+			int[] pegElementIndices = new int[comboSize];
+			// Start off with the pegs lined up tight against the left.
+			for (int i = 0; i < comboSize; ++i) {
+				pegElementIndices[i] = i;
+			}
+			do {
+				Set<T> currentCombination = new HashSet<>(1 + comboSize * 4 / 3);
+				for (int setIndex : pegElementIndices) {
+					currentCombination.add(sourceList.get(setIndex));
+				}
+				allCombinations.add(currentCombination);
+
+				// Check whether the left-most peg is as far to the right as it
+				// can go. When this happens all of the pegs will be lined up
+				// tightly against the right, and this means there is no more room
+				// to shift the pegs.
+				if (pegElementIndices[0] == elementCount - comboSize) {
+					// We have reached the final combination, so exit the loop.
+					break;
+				}
+
+				// Now shift the bits in the BitSet to the find the next combination.
+				// Find the right-most (highest index) "peg" which can shift to
+				// the right by one position to give us a new combination.
+				for (int peg = comboSize - 1; peg >= 0; --peg) {
+					if (pegElementIndices[peg] < elementCount - comboSize + peg) {
+						// This index refers to a peg which has room to move one
+						// to the right so increase its index value by one.
+						++pegElementIndices[peg];
+						// If there are any subsequent pegs (pegs with a higher
+						// array index than the peg we just shifted) then reset
+						// all of their indices so that they line up tight
+						// against the peg we just shifted.
+						for (int subPeg = peg + 1; subPeg < comboSize; ++subPeg) {
+							pegElementIndices[subPeg] = pegElementIndices[peg] + subPeg - peg;
+						}
+						break;
+					}
+				}
+			} while (true);
 		}
 		return allCombinations;
 	}
-
+	
 	/**
 	 * Finds every combination which can be produced using the elements from the
 	 * provided source set, and returns the results in a <code>SortedSet</code>.
