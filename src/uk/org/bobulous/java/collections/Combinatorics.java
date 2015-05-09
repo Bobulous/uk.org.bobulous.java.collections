@@ -702,8 +702,6 @@ public final class Combinatorics {
 				SortedSetComparator.<T>getInstance());
 		int maxBitMaskValue = 1 << elementCount;
 		for (int combination = 0; combination < maxBitMaskValue; ++combination) {
-			SortedSet<T> currentCombination;
-			currentCombination = new TreeSet<>();
 			BitSet comboMask = BitSet.valueOf(new long[]{combination});
 			if (!chooseAll && !chooseInterval.includes(comboMask.cardinality())) {
 				// We are only interested in combinations which contain a number
@@ -712,6 +710,7 @@ public final class Combinatorics {
 				// outside of this interval then skip to the next comboMask.
 				continue;
 			}
+			SortedSet<T> currentCombination = new TreeSet<>();
 			for (int elementIndex = 0; elementIndex < elementCount;
 					++elementIndex) {
 				if (comboMask.get(elementIndex)) {
