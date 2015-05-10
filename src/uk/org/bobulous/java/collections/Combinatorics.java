@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -485,7 +486,8 @@ public final class Combinatorics {
 				// tightly against the right, and this means there is no more room
 				// to shift the pegs.
 				if (pegElementIndices[0] == elementCount - comboSize) {
-					// We have reached the final combination, so exit the loop.
+					// We have reached the final combination of this size, so
+					// exit the loop.
 					break;
 				}
 
@@ -512,6 +514,206 @@ public final class Combinatorics {
 		return allCombinations;
 	}
 	
+	/**
+	 * Returns an iterator which will iterate through every combination of the
+	 * elements found in the supplied set. The empty set will be amongst the
+	 * combinations returned by the iterator.
+	 * <p>
+	 * The provided set can be arbitrarily large (because this method does not
+	 * return all combinations in one go so the limitations of the
+	 * {@link #combinations(java.util.Set)} family of methods do not apply).
+	 * However, be aware that as the total number of combinations of all sizes
+	 * is two raised to the power of the number of elements in the provided set.
+	 * Running through all combinations of a set of size 32 took twenty-four
+	 * minutes of the development machine, and completion time is likely to more
+	 * than double with each additional element added to the source set.</p>
+	 *
+	 * @param <T> the type of the elements found in the supplied set.
+	 * @param sourceElements a <code>Set</code> of elements to be used to create
+	 * combinations. Must not be null.
+	 * @return an <code>Iterator&lt;Set&lt;T&gt;&gt;</code> which will iterate
+	 * through every possible combination of all sizes, including the empty set.
+	 */
+	public static final <T> Iterator<Set<T>> iteratorOfCombinations(
+			Set<T> sourceElements) {
+		Objects.requireNonNull(sourceElements);
+		return new CombinationsIterator(sourceElements, null);
+	}
+
+	/**
+	 * Returns an iterator which will iterate through combinations of the
+	 * specified size which can be produced from the elements of the supplied
+	 * set.
+	 *
+	 * @param <T> the type of the elements found in the supplied set.
+	 * @param sourceElements a <code>Set</code> of elements to be used to create
+	 * combinations. Must not be null.
+	 * @param chooseSize the number of elements to be included in each
+	 * combination returned by this iterator. Must be at least zero and at must
+	 * not be greater than the number of elements found in the supplied set.
+	 * @return an <code>Iterator&lt;Set&lt;T&gt;&gt;</code> which will iterate
+	 * through all combinations of the specified size.
+	 */
+	public static final <T> Iterator<Set<T>> iteratorOfCombinations(
+			Set<T> sourceElements, int chooseSize) {
+		Objects.requireNonNull(sourceElements);
+		if (chooseSize < 0) {
+			throw new IllegalArgumentException(
+					"chooseSize cannot be less than zero.");
+		}
+		if (chooseSize > sourceElements.size()) {
+			throw new IllegalArgumentException(
+					"chooseSize cannot be greater than the size of sourceElements.");
+		}
+		return new CombinationsIterator(sourceElements, new GenericInterval<>(
+				chooseSize, chooseSize));
+	}
+
+	/**
+	 * Returns an iterator which will iterate through combinations which can be
+	 * produced from elements of the supplied set, including only combination
+	 * sizes permitted by the supplied interval.
+	 *
+	 * @param <T> the type of the elements found in the supplied set.
+	 * @param sourceElements a <code>Set</code> of elements to be used to create
+	 * combinations. Must not be null.
+	 * @param chooseInterval an <code>Interval&lt;Integer&gt;</code> which
+	 * specifies which combination sizes should be returned by this iterator.
+	 * Must not be null, and cannot have a lower endpoint less than zero, nor an
+	 * upper endpoint greater than the number of elements found in the supplied
+	 * set.
+	 * @return an <code>Iterator&lt;Set&lt;T&gt;&gt;</code> which will iterate
+	 * through all combinations of the permitted sizes.
+	 */
+	public static final <T> Iterator<Set<T>> iteratorOfCombinations(
+			Set<T> sourceElements, Interval<Integer> chooseInterval) {
+		Objects.requireNonNull(sourceElements);
+		Objects.requireNonNull(chooseInterval);
+		int elementCount = sourceElements.size();
+		validateInterval(chooseInterval, elementCount);
+		return new CombinationsIterator(sourceElements, chooseInterval);
+	}
+
+	/**
+	 * An iterator which returns a single combination at a time.
+	 *
+	 * @param <T> the type of the elements which will be found in the source set
+	 * supplied to this iterator, and the type of the elements which will be
+	 * found in the combination sets returned by this iterator.
+	 */
+	private static class CombinationsIterator<T> implements Iterator<Set<T>> {
+
+		private final List<T> sourceElements;
+		int elementCount;
+		private final Interval<Integer> chooseInterval;
+		private int currentComboSize;
+		private int firstExcludedComboSize;
+		private int[] pegElementIndices;
+
+		/**
+		 * Constructs a <code>CombinationsIterator&lt;T&gt;</code> which will
+		 * return combinations using elements from the supplied set and having
+		 * sizes permitted by the supplied interval.
+		 *
+		 * @param sourceElements a <code>Set</code> of elements to be used to
+		 * create combinations. Must not be null.
+		 * @param chooseInterval an <code>Interval&lt;Integer&gt;</code> which
+		 * specifies which combination sizes should be returned by this
+		 * iterator. Must not be null, and cannot have a lower endpoint less
+		 * than zero, nor an upper endpoint greater than the number of elements
+		 * found in the supplied set.
+		 */
+		CombinationsIterator(Set<T> sourceElements,
+				Interval<Integer> chooseInterval) {
+			Objects.requireNonNull(sourceElements);
+			this.sourceElements = new ArrayList<>(sourceElements);
+			elementCount = this.sourceElements.size();
+			this.chooseInterval = chooseInterval;
+			if (this.chooseInterval != null) {
+				validateInterval(this.chooseInterval, sourceElements.size());
+				currentComboSize = this.chooseInterval.getLowerEndpoint();
+				if (this.chooseInterval.getLowerEndpointMode().equals(
+						Interval.EndpointMode.OPEN)) {
+					++currentComboSize;
+				}
+				firstExcludedComboSize = this.chooseInterval.
+						getUpperEndpoint();
+				if (this.chooseInterval.getUpperEndpointMode().equals(
+						Interval.EndpointMode.CLOSED)) {
+					++firstExcludedComboSize;
+				}
+			} else {
+				currentComboSize = 0;
+				firstExcludedComboSize = sourceElements.size() + 1;
+			}
+			if (currentComboSize > 0) {
+				this.pegElementIndices = new int[currentComboSize];
+				// Start off with the pegs lined up tight against the left.
+				for (int i = 0; i < currentComboSize; ++i) {
+					pegElementIndices[i] = i;
+				}
+			}
+		}
+
+		@Override
+		public boolean hasNext() {
+			if (currentComboSize < firstExcludedComboSize) {
+				// We've not exceeded the final combination size that will be
+				// generated by this iterator, so there must still be at least
+				// one combination still to come.
+				return true;
+			}
+			return false;
+		}
+
+		@Override
+		public Set<T> next() {
+			Set<T> currentCombination = new HashSet<>(1 + currentComboSize * 4
+					/ 3);
+			if (currentComboSize > 0) {
+				for (int setIndex : pegElementIndices) {
+					currentCombination.add(sourceElements.get(setIndex));
+				}
+			}
+
+			if (currentComboSize == 0 || pegElementIndices[0] == elementCount
+					- currentComboSize) {
+				// We've found all of the combinations of the current size, so
+				// move up to the next combination size.
+				++currentComboSize;
+				if (currentComboSize < firstExcludedComboSize) {
+					pegElementIndices = new int[currentComboSize];
+					// Start off with the pegs lined up tight against the left.
+					for (int i = 0; i < currentComboSize; ++i) {
+						pegElementIndices[i] = i;
+					}
+				}
+			} else {
+				// We still have more combinations available in the current size
+				// so shift the pegs to reach the next combination.
+				for (int peg = currentComboSize - 1; peg >= 0; --peg) {
+					if (pegElementIndices[peg] < elementCount - currentComboSize
+							+ peg) {
+						// This index refers to a peg which has room to move one
+						// to the right so increase its index value by one.
+						++pegElementIndices[peg];
+						// If there are any subsequent pegs (pegs with a higher
+						// array index than the peg we just shifted) then reset
+						// all of their indices so that they line up tight
+						// against the peg we just shifted.
+						for (int subPeg = peg + 1; subPeg < currentComboSize;
+								++subPeg) {
+							pegElementIndices[subPeg] = pegElementIndices[peg]
+									+ subPeg - peg;
+						}
+						break;
+					}
+				}
+			}
+			return currentCombination;
+		}
+	}
+
 	/**
 	 * Finds every combination which can be produced using the elements from the
 	 * provided source set, and returns the results in a <code>SortedSet</code>.
