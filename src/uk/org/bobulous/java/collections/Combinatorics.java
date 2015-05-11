@@ -519,14 +519,15 @@ public final class Combinatorics {
 	 * elements found in the supplied set. The empty set will be amongst the
 	 * combinations returned by the iterator.
 	 * <p>
-	 * The provided set can be arbitrarily large (because this method does not
+	 * The provided set can be arbitrarily large because this method does not
 	 * return all combinations in one go so the limitations of the
-	 * {@link #combinations(java.util.Set)} family of methods do not apply).
-	 * However, be aware that as the total number of combinations of all sizes
-	 * is two raised to the power of the number of elements in the provided set.
-	 * Running through all combinations of a set of size 32 took twenty-four
-	 * minutes of the development machine, and completion time is likely to more
-	 * than double with each additional element added to the source set.</p>
+	 * {@link #combinations(java.util.Set)} family of methods do not apply.
+	 * However, be aware that the total number of combinations of all sizes is
+	 * equal to two raised to the power of the number of elements in the
+	 * provided set. Iterating through all of the 4.2 billion combinations
+	 * generated from a set of size 32 took twenty-four minutes on the
+	 * development machine, and completion time is likely to be more than double
+	 * for a source set with a size greater by one extra element.</p>
 	 *
 	 * @param <T> the type of the elements found in the supplied set.
 	 * @param sourceElements a <code>Set</code> of elements to be used to create
@@ -541,7 +542,7 @@ public final class Combinatorics {
 	}
 
 	/**
-	 * Returns an iterator which will iterate through combinations of the
+	 * Returns an iterator which will iterate through all combinations of the
 	 * specified size which can be produced from the elements of the supplied
 	 * set.
 	 *
@@ -571,8 +572,8 @@ public final class Combinatorics {
 
 	/**
 	 * Returns an iterator which will iterate through combinations which can be
-	 * produced from elements of the supplied set, including only combination
-	 * sizes permitted by the supplied interval.
+	 * produced from elements of the supplied set, including all combinations
+	 * with sizes permitted by the supplied interval.
 	 *
 	 * @param <T> the type of the elements found in the supplied set.
 	 * @param sourceElements a <code>Set</code> of elements to be used to create
@@ -619,7 +620,10 @@ public final class Combinatorics {
 		 * create combinations. Must not be null.
 		 * @param chooseInterval an <code>Interval&lt;Integer&gt;</code> which
 		 * specifies which combination sizes should be returned by this
-		 * iterator. Must not be null, and cannot have a lower endpoint less
+		 * iterator. If <code>null</code> is provided then all combination sizes
+		 * from zero up to and including the number of elements in the source
+		 * set will be included in the results returned by this iterator; if an
+		 * actual interval is provided then it cannot have a lower endpoint less
 		 * than zero, nor an upper endpoint greater than the number of elements
 		 * found in the supplied set.
 		 */
