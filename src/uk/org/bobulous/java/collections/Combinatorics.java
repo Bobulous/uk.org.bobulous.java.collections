@@ -88,8 +88,8 @@ public final class Combinatorics {
 	}
 
 	/*
-	*** COMBINATION METHODS
-	*/
+	 *** COMBINATION METHODS
+	 */
 	
 	/**
 	 * Calculates the total number of combinations of all sizes which could be
@@ -100,6 +100,8 @@ public final class Combinatorics {
 	 * than zero and cannot be larger than 62.
 	 * @return the number of combinations of all sizes which could be generated
 	 * from a set which has <code>setSize</code> elements.
+	 * @see #numberOfCombinations(int, int)
+	 * @see #numberOfCombinations(int, uk.org.bobulous.java.intervals.Interval)
 	 */
 	public static final long numberOfCombinations(int setSize) {
 		if (setSize < 0) {
@@ -115,8 +117,7 @@ public final class Combinatorics {
 
 	/**
 	 * Calculates the number of combinations of the specified size which could
-	 * be generated from a source set of the specified size. The number returned
-	 * will count the empty set in the total.
+	 * be generated from a source set of the specified size.
 	 *
 	 * @param setSize the number of elements in the source set. Cannot be less
 	 * than zero and cannot be larger than 62.
@@ -345,6 +346,11 @@ public final class Combinatorics {
 	 * @return a <code>Set</code> which contains one or more sets, one for each
 	 * possible combination of the elements found in
 	 * <code>sourceElements</code>.
+	 * @see #permutations(java.util.Set)
+	 * @see #combinationsSorted(java.util.Set)
+	 * @see #combinations(java.util.Set, int)
+	 * @see #combinations(java.util.Set,
+	 * uk.org.bobulous.java.intervals.Interval)
 	 */
 	public static final <T> Set<Set<T>> combinations(Set<T> sourceElements) {
 		Objects.requireNonNull(sourceElements);
@@ -463,7 +469,7 @@ public final class Combinatorics {
 				allCombinations.add(new HashSet<>(1));
 				continue;
 			}
-			
+
 			// Use an array of "pegs" which each point to an element index. Each
 			// peg must point to a unique element index, and new combinations
 			// will be found by shifting the pegs across the element indices
@@ -504,7 +510,8 @@ public final class Combinatorics {
 						// all of their indices so that they line up tight
 						// against the peg we just shifted.
 						for (int subPeg = peg + 1; subPeg < comboSize; ++subPeg) {
-							pegElementIndices[subPeg] = pegElementIndices[peg] + subPeg - peg;
+							pegElementIndices[subPeg] = pegElementIndices[peg]
+									+ subPeg - peg;
 						}
 						break;
 					}
@@ -513,7 +520,7 @@ public final class Combinatorics {
 		}
 		return allCombinations;
 	}
-	
+
 	/**
 	 * Returns an iterator which will iterate through every combination of the
 	 * elements found in the supplied set. The empty set will be amongst the
@@ -534,6 +541,9 @@ public final class Combinatorics {
 	 * combinations. Must not be null.
 	 * @return an <code>Iterator&lt;Set&lt;T&gt;&gt;</code> which will iterate
 	 * through every possible combination of all sizes, including the empty set.
+	 * @see #iteratorOfCombinations(java.util.Set, int)
+	 * @see #iteratorOfCombinations(java.util.Set,
+	 * uk.org.bobulous.java.intervals.Interval)
 	 */
 	public static final <T> Iterator<Set<T>> iteratorOfCombinations(
 			Set<T> sourceElements) {
@@ -751,6 +761,10 @@ public final class Combinatorics {
 	 * each possible combination of the elements found in
 	 * <code>sourceElements</code>, sorted by combination sizes and by the
 	 * natural order of the elements within each combination.
+	 * @see #combinations(java.util.Set)
+	 * @see #combinationsSorted(java.util.Set, int)
+	 * @see #combinationsSorted(java.util.Set,
+	 * uk.org.bobulous.java.intervals.Interval)
 	 */
 	public static final <T extends Comparable<T>> SortedSet<SortedSet<T>> combinationsSorted(
 			Set<T> sourceElements) {
@@ -967,6 +981,7 @@ public final class Combinatorics {
 	 * <code>null</code> element and cannot contain more than twelve elements.
 	 * @return a <code>Set&lt;List&lt;T&gt;&gt;</code> which contains every
 	 * possible permutation of the source set.
+	 * @see #combinations(java.util.Set)
 	 */
 	public static final <T> Set<List<T>> permutations(Set<T> sourceElements) {
 		Objects.requireNonNull(sourceElements);
