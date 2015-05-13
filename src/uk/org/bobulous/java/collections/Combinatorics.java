@@ -445,7 +445,8 @@ public final class Combinatorics {
 
 	/**
 	 * Finds every combination of the specified size using the elements from the
-	 * provided source set.
+	 * provided source set. The empty set (and only the empty set) will be
+	 * returned if the specified size is zero.
 	 * <p>
 	 * The returned <code>Set</code> will contain every combination of the
 	 * specified size which can be produced using the elements contained in the
@@ -485,7 +486,8 @@ public final class Combinatorics {
 
 	/**
 	 * Finds every combination of the specified sizes using the elements from
-	 * the provided source set.
+	 * the provided source set. The empty set will be included in the results
+	 * if the specified interval includes zero.
 	 * <p>
 	 * The returned <code>Set</code> will contain every combination of the sizes
 	 * permitted by the specified interval, each combination produced using the
@@ -604,8 +606,8 @@ public final class Combinatorics {
 	}
 
 	/**
-	 * Returns an iterator which will iterate through every combination of the
-	 * elements found in the supplied set. The empty set will be amongst the
+	 * Returns an iterator of all combinations which can be produced from the
+	 * elements of the supplied set. The empty set will be amongst the
 	 * combinations returned by the iterator.
 	 * <p>
 	 * The provided set can be arbitrarily large because this method does not
@@ -634,9 +636,9 @@ public final class Combinatorics {
 	}
 
 	/**
-	 * Returns an iterator which will iterate through all combinations of the
-	 * specified size which can be produced from the elements of the supplied
-	 * set.
+	 * Returns an iterator of all combinations of the specified size which can
+	 * be produced from the elements of the supplied set. The empty set (and
+	 * only the empty set) will be returned if the specified size is zero.
 	 *
 	 * @param <T> the type of the elements found in the supplied set.
 	 * @param sourceElements a <code>Set</code> of elements to be used to create
@@ -663,9 +665,10 @@ public final class Combinatorics {
 	}
 
 	/**
-	 * Returns an iterator which will iterate through combinations which can be
-	 * produced from elements of the supplied set, including all combinations
-	 * with sizes permitted by the supplied interval.
+	 * Returns an iterator of combinations which can be produced from elements
+	 * of the supplied set, including only combinations with sizes permitted by
+	 * the supplied interval. The empty set will be included in the results if
+	 * the specified interval includes zero.
 	 *
 	 * @param <T> the type of the elements found in the supplied set.
 	 * @param sourceElements a <code>Set</code> of elements to be used to create
@@ -864,7 +867,8 @@ public final class Combinatorics {
 	/**
 	 * Finds every combination of the specified size which can be produced using
 	 * the elements from the provided source set, and returns the results in a
-	 * <code>SortedSet</code>.
+	 * <code>SortedSet</code>. The empty set (and only the empty set) will be
+	 * returned if the specified size is zero.
 	 * <p>
 	 * The returned <code>SortedSet</code> will contain every combination of the
 	 * specified size which can be produced using the elements contained in the
@@ -916,6 +920,8 @@ public final class Combinatorics {
 	/**
 	 * Finds every combination of the specified sizes using elements from the
 	 * provided source set, and returns the results in a <code>SortedSet</code>.
+	 * The empty set will be included in the results if the specified interval
+	 * includes zero.
 	 * <p>
 	 * The returned <code>SortedSet</code> will contain every combination of the
 	 * sizes permitted by the specified interval, each combination produced
