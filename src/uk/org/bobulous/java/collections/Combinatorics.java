@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
@@ -522,6 +523,8 @@ public final class Combinatorics {
 
 	/*
 	 Private method to contain the code used by the public overloaded methods.
+	 No need to validate parameters, as the public methods should validate them
+	 before calling this private method.
 	 */
 	private static <T> Set<Set<T>> generateCombinations(
 			Set<T> sourceElements,
@@ -764,6 +767,9 @@ public final class Combinatorics {
 
 		@Override
 		public Set<T> next() {
+			if(currentComboSize == firstExcludedComboSize) {
+				throw new NoSuchElementException();
+			}
 			Set<T> currentCombination = new HashSet<>(1 + currentComboSize * 4
 					/ 3);
 			if (currentComboSize > 0) {
@@ -999,6 +1005,8 @@ public final class Combinatorics {
 
 	/*
 	 Private method to contain the code used by the public overloaded methods.
+	 No need to validate parameters, as the public methods should validate them
+	 before calling this private method.
 	 */
 	private static <T extends Comparable<T>> SortedSet<SortedSet<T>> generateCombinationsSorted(
 			Set<T> sourceElements, boolean chooseAll,
