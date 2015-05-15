@@ -1118,4 +1118,72 @@ public final class Combinatorics {
 		// Return the generated Set of all permutations.
 		return perms;
 	}
+	
+	public static final <T> Iterator<List<T>> iteratorOfPermutations(Set<T> sourceElements) {
+		Objects.requireNonNull(sourceElements);
+		if(SetUtilities.containsNull(sourceElements)) {
+			throw new NullPointerException("sourceElements must not contain a null element.");
+		}
+		return new PermutationIterator<>(sourceElements);
+	}
+	
+	private static class PermutationIterator<T> implements Iterator<List<T>> {
+		private final List<T> elements;
+		private int elementCount;
+		private int elementIndex;
+		private int[] swapCount;
+		private boolean firstPermutation;
+		
+		private PermutationIterator(Set<T> sourceElements) {
+			elements = new ArrayList<>(sourceElements);
+			elementCount = elements.size();
+			swapCount = new int[elementCount];
+			elementIndex = 1;
+			firstPermutation = true;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return elementIndex < elementCount;
+		}
+
+		@Override
+		public List<T> next() {
+			List<T> perm = null;
+			if (firstPermutation) {
+				perm = new ArrayList<>(elements);
+				firstPermutation = false;
+			}
+			while (perm == null && elementIndex < elementCount) {
+				if (swapCount[elementIndex] < elementIndex) {
+					int swapIndex
+							= elementIndex % 2 == 0 ? 0 : swapCount[elementIndex];
+					T currentElement = elements.get(elementIndex);
+					T swapperElement = elements.get(swapIndex);
+					elements.set(elementIndex, swapperElement);
+					elements.set(swapIndex, currentElement);
+					perm = new ArrayList<>(elements);
+					++swapCount[elementIndex];
+					elementIndex = 1;
+				} else {
+					swapCount[elementIndex] = 0;
+					++elementIndex;
+				}
+			}
+			return perm;
+		}
+	}
+	
+	public static void main(String[] args) {
+		Set<Integer> numbers = new HashSet<>(8);
+		numbers.add(1);
+		numbers.add(2);
+		numbers.add(4);
+		
+		System.out.println("Finding permutations of source set: "+numbers);
+		Iterator<List<Integer>> permIterator = iteratorOfPermutations(numbers);
+		while(permIterator.hasNext()) {
+			System.out.println("Permutation: " + permIterator.next());
+		}
+	}
 }
