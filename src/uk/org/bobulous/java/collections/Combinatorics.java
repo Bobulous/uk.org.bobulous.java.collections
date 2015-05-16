@@ -1153,8 +1153,8 @@ public final class Combinatorics {
 	 *
 	 * @param <T> the type of the elements found in the supplied set.
 	 * @param sourceElements a <code>Set</code> of elements to be used to create
-	 * combinations. Must not be <code>null</code> and must not contain a
-	 * <code>null</code> element.
+	 * combinations. Must not be <code>null</code>, must not be empty, and must
+	 * not contain a <code>null</code> element.
 	 * @return an <code>Iterator&lt;List&lt;T&gt;&gt;</code> which will iterate
 	 * through every possible permutation of the elements found in the supplied
 	 * set.
@@ -1164,6 +1164,9 @@ public final class Combinatorics {
 	public static final <T> Iterator<List<T>> iteratorOfPermutations(
 			Set<T> sourceElements) {
 		Objects.requireNonNull(sourceElements);
+		if (sourceElements.isEmpty()) {
+			throw new IllegalArgumentException("sourceSet cannot be empty.");
+		}
 		if (SetUtilities.containsNull(sourceElements)) {
 			throw new NullPointerException(
 					"sourceElements must not contain a null element.");
