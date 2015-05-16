@@ -79,7 +79,7 @@ import uk.org.bobulous.java.intervals.Interval;
  * <h1>Permutations</h1>
  *
  * <p>
- * A method is provided which finds all permutations of elements from a given
+ * Methods are provided which find all permutations of elements from a given
  * set. A permutation is a particular ordering of the source elements, so that
  * the permutation (1, 2) is not the same as the permutation (2, 1).</p>
  *
@@ -89,7 +89,7 @@ import uk.org.bobulous.java.intervals.Interval;
  * {@link #permutations(java.util.Set)} will return a
  * <code>Set&lt;List&lt;String&gt;&gt;</code> which contains every possible
  * permutation, so that the result will have the following contents, with each
- * permutation held in a <code>List&lt;String&gt;</code>:
+ * permutation held in a <code>List&lt;String&gt;</code>:</p>
  *
  * <pre>
  * {
@@ -109,7 +109,12 @@ import uk.org.bobulous.java.intervals.Interval;
  * <p>
  * Be aware that the total number of permutations is the factorial of the number
  * of elements in the source set. This number grows at a faster than exponential
- * rate as the size of the source set increases.</p>
+ * rate as the size of the source set increases, so generating the entire set of
+ * all permutations in one go can be undesirable and the maximum source set size
+ * is restricted by available heap space. For this reason you can instead use
+ * {@link #iteratorOfPermutations(java.util.Set)} to create an
+ * <code>Iterator&lt;List&lt;T&gt;&gt;</code> which will return one permutation
+ * at a time as needed.</p>
  *
  * @author Bobulous <http://www.bobulous.org.uk/>
  */
@@ -1137,7 +1142,7 @@ public final class Combinatorics {
 	 * {@link #permutations(java.util.Set)} method do not apply. However, be
 	 * aware that the total number of permutations is equal to the factorial of
 	 * the number of elements in the provided set. The factorial function grows
-	 * at a rate faster than a base-two exponential function, so a set of size
+	 * at a rate faster than a base-two exponential function: a set of size
 	 * ten will produce more than three million (3.6⏨6) permutations; a set of
 	 * size fifteen will produce more than a trillion permutations (1.3⏨12); and
 	 * a set of size twenty will produce more than two quintillion permutations
@@ -1239,20 +1244,6 @@ public final class Combinatorics {
 				throw new NoSuchElementException();
 			}
 			return perm;
-		}
-	}
-
-	public static void main(String[] args) {
-		Set<Integer> numbers = new HashSet<>(8);
-		numbers.add(1);
-		numbers.add(2);
-		numbers.add(3);
-		numbers.add(4);
-
-		System.out.println("Finding permutations of source set: " + numbers);
-		Iterator<List<Integer>> permIterator = iteratorOfPermutations(numbers);
-		while (permIterator.hasNext()) {
-			System.out.println("Permutation: " + permIterator.next());
 		}
 	}
 }
