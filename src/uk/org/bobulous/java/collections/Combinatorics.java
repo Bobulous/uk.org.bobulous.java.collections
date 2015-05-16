@@ -487,8 +487,8 @@ public final class Combinatorics {
 
 	/**
 	 * Finds every combination of the specified sizes using the elements from
-	 * the provided source set. The empty set will be included in the results
-	 * if the specified interval includes zero.
+	 * the provided source set. The empty set will be included in the results if
+	 * the specified interval includes zero.
 	 * <p>
 	 * The returned <code>Set</code> will contain every combination of the sizes
 	 * permitted by the specified interval, each combination produced using the
@@ -614,7 +614,7 @@ public final class Combinatorics {
 	 * combinations returned by the iterator.
 	 * <p>
 	 * The provided set can be arbitrarily large because this method does not
-	 * return all combinations in one go so the limitations of the
+	 * return all combinations in one go, so the limitations of the
 	 * {@link #combinations(java.util.Set)} family of methods do not apply.
 	 * However, be aware that the total number of combinations of all sizes is
 	 * equal to two raised to the power of the number of elements in the
@@ -625,7 +625,7 @@ public final class Combinatorics {
 	 *
 	 * @param <T> the type of the elements found in the supplied set.
 	 * @param sourceElements a <code>Set</code> of elements to be used to create
-	 * combinations. Must not be null.
+	 * combinations. Must not be <code>null</code>.
 	 * @return an <code>Iterator&lt;Set&lt;T&gt;&gt;</code> which will iterate
 	 * through every possible combination of all sizes, including the empty set.
 	 * @see #iteratorOfCombinations(java.util.Set, int)
@@ -645,7 +645,7 @@ public final class Combinatorics {
 	 *
 	 * @param <T> the type of the elements found in the supplied set.
 	 * @param sourceElements a <code>Set</code> of elements to be used to create
-	 * combinations. Must not be null.
+	 * combinations. Must not be <code>null</code>.
 	 * @param chooseSize the number of elements to be included in each
 	 * combination returned by this iterator. Must be at least zero and at must
 	 * not be greater than the number of elements found in the supplied set.
@@ -675,12 +675,12 @@ public final class Combinatorics {
 	 *
 	 * @param <T> the type of the elements found in the supplied set.
 	 * @param sourceElements a <code>Set</code> of elements to be used to create
-	 * combinations. Must not be null.
+	 * combinations. Must not be <code>null</code>.
 	 * @param chooseInterval an <code>Interval&lt;Integer&gt;</code> which
 	 * specifies which combination sizes should be returned by this iterator.
-	 * Must not be null, and cannot have a lower endpoint less than zero, nor an
-	 * upper endpoint greater than the number of elements found in the supplied
-	 * set.
+	 * Must not be <code>null</code>, and cannot have a lower endpoint less than
+	 * zero, nor an upper endpoint greater than the number of elements found in
+	 * the supplied set.
 	 * @return an <code>Iterator&lt;Set&lt;T&gt;&gt;</code> which will iterate
 	 * through all combinations of the permitted sizes.
 	 */
@@ -715,7 +715,7 @@ public final class Combinatorics {
 		 * sizes permitted by the supplied interval.
 		 *
 		 * @param sourceElements a <code>Set</code> of elements to be used to
-		 * create combinations. Must not be null.
+		 * create combinations. Must not be <code>null</code>.
 		 * @param chooseInterval an <code>Interval&lt;Integer&gt;</code> which
 		 * specifies which combination sizes should be returned by this
 		 * iterator. If <code>null</code> is provided then all combination sizes
@@ -1076,6 +1076,7 @@ public final class Combinatorics {
 	 * <code>null</code> element and cannot contain more than twelve elements.
 	 * @return a <code>Set&lt;List&lt;T&gt;&gt;</code> which contains every
 	 * possible permutation of the source set.
+	 * @see #iteratorOfPermutations(java.util.Set)
 	 * @see #combinations(java.util.Set)
 	 */
 	public static final <T> Set<List<T>> permutations(Set<T> sourceElements) {
@@ -1125,5 +1126,130 @@ public final class Combinatorics {
 
 		// Return the generated Set of all permutations.
 		return perms;
+	}
+
+	/**
+	 * Returns an iterator of all permutations which can be produced from the
+	 * elements of the supplied set.
+	 * <p>
+	 * The provided set can be arbitrarily large because this method does not
+	 * return all permutations in one go, so the limitations of the
+	 * {@link #permutations(java.util.Set)} method do not apply. However, be
+	 * aware that the total number of permutations is equal to the factorial of
+	 * the number of elements in the provided set. The factorial function grows
+	 * at a rate faster than a base-two exponential function, so a set of size
+	 * ten will produce more than three million (3.6⏨6) permutations; a set of
+	 * size fifteen will produce more than a trillion permutations (1.3⏨12); and
+	 * a set of size twenty will produce more than two quintillion permutations
+	 * (2.4⏨18).
+	 * </p>
+	 * <p>
+	 * To avoid depleting application memory, this iterator will not retain
+	 * references to any of the permutations it returns. To avoid running out of
+	 * memory, it is recommended that you operate on each permutation and then
+	 * discard all references to it, so that its memory can be liberated by the
+	 * garbage collector.
+	 * </p>
+	 *
+	 * @param <T> the type of the elements found in the supplied set.
+	 * @param sourceElements a <code>Set</code> of elements to be used to create
+	 * combinations. Must not be <code>null</code> and must not contain a
+	 * <code>null</code> element.
+	 * @return an <code>Iterator&lt;List&lt;T&gt;&gt;</code> which will iterate
+	 * through every possible permutation of the elements found in the supplied
+	 * set.
+	 * @see #permutations(java.util.Set)
+	 * @see #iteratorOfCombinations(java.util.Set)
+	 */
+	public static final <T> Iterator<List<T>> iteratorOfPermutations(
+			Set<T> sourceElements) {
+		Objects.requireNonNull(sourceElements);
+		if (SetUtilities.containsNull(sourceElements)) {
+			throw new NullPointerException(
+					"sourceElements must not contain a null element.");
+		}
+		return new PermutationsIterator<>(sourceElements);
+	}
+
+	/**
+	 * An iterator which returns a single permutation at a time.
+	 *
+	 * @param <T> the type of the elements which will be found in the source set
+	 * supplied to this iterator, and the type of the elements which will be
+	 * found in the permutation lists returned by this iterator.
+	 */
+	private static class PermutationsIterator<T> implements Iterator<List<T>> {
+
+		private final List<T> elements;
+		private final int elementCount;
+		private int elementIndex;
+		private final int[] swapCount;
+		private boolean firstPermutation;
+
+		private PermutationsIterator(Set<T> sourceElements) {
+			elements = new ArrayList<>(sourceElements);
+			elementCount = elements.size();
+			swapCount = new int[elementCount];
+			elementIndex = 1;
+			firstPermutation = true;
+		}
+
+		@Override
+		public boolean hasNext() {
+			if (elementIndex == elementCount) {
+				return false;
+			}
+			for (int i = elementIndex; i < elementCount; ++i) {
+				if (swapCount[i] < i) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public List<T> next() {
+			List<T> perm = null;
+			if (firstPermutation) {
+				perm = new ArrayList<>(elements);
+				firstPermutation = false;
+			}
+			// Use Fuchs' Counting QuickPerm Algorithm to swap elements in the
+			// set to produce the next permutation. See http://quickperm.org/
+			while (perm == null && elementIndex < elementCount) {
+				if (swapCount[elementIndex] < elementIndex) {
+					int swapIndex
+							= elementIndex % 2 == 0 ? 0 : swapCount[elementIndex];
+					T currentElement = elements.get(elementIndex);
+					T swapperElement = elements.get(swapIndex);
+					elements.set(elementIndex, swapperElement);
+					elements.set(swapIndex, currentElement);
+					perm = new ArrayList<>(elements);
+					++swapCount[elementIndex];
+					elementIndex = 1;
+				} else {
+					swapCount[elementIndex] = 0;
+					++elementIndex;
+				}
+			}
+			if (perm == null) {
+				throw new NoSuchElementException();
+			}
+			return perm;
+		}
+	}
+
+	public static void main(String[] args) {
+		Set<Integer> numbers = new HashSet<>(8);
+		numbers.add(1);
+		numbers.add(2);
+		numbers.add(3);
+		numbers.add(4);
+
+		System.out.println("Finding permutations of source set: " + numbers);
+		Iterator<List<Integer>> permIterator = iteratorOfPermutations(numbers);
+		while (permIterator.hasNext()) {
+			System.out.println("Permutation: " + permIterator.next());
+		}
 	}
 }
