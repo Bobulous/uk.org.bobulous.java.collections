@@ -14,7 +14,8 @@ To avoid the steep memory cost and processing delay of generating all combinatio
 For example, given a `Set<Integer>` called `tenIntegerSet` which contains ten integers, an iterator can be produced to act on one permutation at a time with the following code:
 
 ```java
-Iterator<List<Integer>> permIterator = Combinatorics.iteratorOfPermutations(tenIntegerSet);
+Iterator<List<Integer>> permutationIterator =
+        Combinatorics.iteratorOfPermutations(tenIntegerSet);
 while (permutationIterator.hasNext()) {
     List<Integer> currentPermutation = permutationIterator.next();
     // Do something useful with the currentPermutation.
