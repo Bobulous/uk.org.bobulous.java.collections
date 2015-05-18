@@ -1194,6 +1194,13 @@ public final class Combinatorics {
 		private final int[] swapCount;
 		private boolean firstPermutation;
 
+		/**
+		 * Constructs a new <code>PermutationsIterator</code> which will iterate
+		 * through the permutations of the supplied set.
+		 * @param sourceElements a <code>Set&lt;T&gt;</code> which must not be
+		 * <code>null</code>, must not be empty, and must not contain a
+		 * <code>null</code> element.
+		 */
 		private PermutationsIterator(Set<T> sourceElements) {
 			elements = new ArrayList<>(sourceElements);
 			elementCount = elements.size();
