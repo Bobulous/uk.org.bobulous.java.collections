@@ -63,7 +63,8 @@ import java.util.SortedSet;
  * <p>
  * <code>SortedSetComparator</code> is <em>consistent with equals</em> so long
  * as the <code>compareTo</code> method of the element type <code>T</code> is
- * consistent with equals.</p>
+ * consistent with equals <strong>and</strong> both sets are ordered the same
+ * way.</p>
  * <p>
  * If either of the <code>SortedSet</code> instances passed to the
  * <code>compare</code> method contains a <code>null</code> element then a
@@ -117,16 +118,47 @@ public final class SortedSetComparator<T extends Comparable<T>> implements
 		return (SortedSetComparator<K>) singleton;
 	}
 
+	/**
+	 * Compares <code>SortedSet</code> objects based on their size and on the
+	 * elements they contain.
+	 * <p>
+	 * If set alpha contains fewer elements than set beta then
+	 * <code>compare(alpha, beta)</code> will return a negative integer; if
+	 * alpha contains a greater number of elements than beta then a positive
+	 * integer will be returned.</p>
+	 * <p>
+	 * If both sets alpha and beta have the same number of elements then the
+	 * elements of the two sets will be compared. If their first elements (based
+	 * on the ordering of the <code>SortedSet</code>) are different then a
+	 * negative integer will be returned if alpha's first element is considered
+	 * to come before beta's first element (based on the natural ordering of the
+	 * element type) and a positive integer will be returned if alpha's first
+	 * element is considered to come after beta's first element. If the first
+	 * elements are both identical then the second elements of the two sets are
+	 * compared in the same way, and so on. Only if both sets have an identical
+	 * size and identical elements in the same order will
+	 * <code>compare(alpha, beta)</code> return zero.</p>
+	 *
+	 * @param alpha a <code>SortedSet&lt;T&gt;</code>. Must not be
+	 * <code>null</code>.
+	 * @param beta the basis <code>SortedSet&lt;T&gt;</code> against which the
+	 * first will be compared. Must not be <code>null</code>.
+	 * @return an <code>int</code> which will be negative if <code>alpha</code>
+	 * is judged to come before <code>beta</code> based on the ordering
+	 * described; positive if <code>alpha</code> comes after <code>beta</code>;
+	 * and zero if both sets have identical size, identical elements and
+	 * identical order.
+	 */
 	@Override
-	public int compare(SortedSet<T> o1, SortedSet<T> o2) {
-		Objects.requireNonNull(o1);
-		Objects.requireNonNull(o2);
-		if (SetUtilities.containsNull(o1) || SetUtilities.containsNull(o2)) {
+	public int compare(SortedSet<T> alpha, SortedSet<T> beta) {
+		Objects.requireNonNull(alpha);
+		Objects.requireNonNull(beta);
+		if (SetUtilities.containsNull(alpha) || SetUtilities.containsNull(beta)) {
 			throw new NullPointerException(
 					"SortedSetComparator cannot compare any Set which contains "
 					+ "a null element.");
 		}
-		int sizeComparison = Integer.compare(o1.size(), o2.size());
+		int sizeComparison = Integer.compare(alpha.size(), beta.size());
 		if (sizeComparison != 0) {
 			// Sizes of the two sets differ, so the one with fewest elements is
 			// considered to come before the one with a higher number of
@@ -135,8 +167,8 @@ public final class SortedSetComparator<T extends Comparable<T>> implements
 		}
 		// Sizes are the same, so we must compare the elements within the two
 		// sets based on their natural ordering.
-		Iterator<T> setOneIterator = o1.iterator();
-		Iterator<T> setTwoIterator = o2.iterator();
+		Iterator<T> setOneIterator = alpha.iterator();
+		Iterator<T> setTwoIterator = beta.iterator();
 		while (setOneIterator.hasNext()) {
 			// Compare the values of the elements at the same "position" within
 			// each Set. (These sets are both of type SortedSet so they have a
