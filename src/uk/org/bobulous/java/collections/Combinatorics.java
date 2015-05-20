@@ -1209,6 +1209,14 @@ public final class Combinatorics {
 			firstPermutation = true;
 		}
 
+		/**
+		 * Reports on whether this iterator has any further permutations to
+		 * offer.
+		 *
+		 * @return <code>true</code> if calling the <code>next()</code> method
+		 * of this iterator will return a new permutation; <code>false</code> if
+		 * there are no further permutations available.
+		 */
 		@Override
 		public boolean hasNext() {
 			if (elementIndex == elementCount) {
@@ -1222,6 +1230,23 @@ public final class Combinatorics {
 			return false;
 		}
 
+		/**
+		 * Returns a new permutation of the elements found in the source set
+		 * which was used to create this iterator.
+		 * <p>
+		 * Permutations will not be returned in any guaranteed order, but each
+		 * call to <code>next()</code> will return a permutation which has not
+		 * already been returned by this iterator, or throw a
+		 * <code>NoSuchElementException</code> if this iterator has no more
+		 * unique permutations to return.</p>
+		 *
+		 * @return a <code>List&lt;T&gt;</code> which represents a uniquely
+		 * ordered permutation of the elements found in the source set which was
+		 * used to construct this iterator.
+		 * @throws NoSuchElementException if all permutations have already been
+		 * returned by this iterator and there is no new permutation which can
+		 * be provided.
+		 */
 		@Override
 		public List<T> next() {
 			List<T> perm = null;
