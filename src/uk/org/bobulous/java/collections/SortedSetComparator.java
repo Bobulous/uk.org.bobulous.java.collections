@@ -64,7 +64,11 @@ import java.util.SortedSet;
  * <code>SortedSetComparator</code> is <em>consistent with equals</em> so long
  * as the <code>compareTo</code> method of the element type <code>T</code> is
  * consistent with equals <strong>and</strong> both sets are ordered the same
- * way.</p>
+ * way. If the two <code>SortedSet</code> instances were constructed with
+ * different <code>Comparator</code> types which do not guarantee to return the
+ * same result under the same conditions, then <code>SortedSetComparator</code>
+ * will not be consistent with equals, because the two sets might contain
+ * exactly the same elements but in a different order.</p>
  * <p>
  * If either of the <code>SortedSet</code> instances passed to the
  * <code>compare</code> method contains a <code>null</code> element then a
