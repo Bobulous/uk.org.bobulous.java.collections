@@ -176,7 +176,7 @@ public final class Combinatorics {
 	}
 
 	/*
-	 *** COMBINATION METHODS
+	 *** COMBINATION METHODS ***
 	 */
 	
 	/**
@@ -772,7 +772,7 @@ public final class Combinatorics {
 
 		@Override
 		public Set<T> next() {
-			if(currentComboSize == firstExcludedComboSize) {
+			if (currentComboSize == firstExcludedComboSize) {
 				throw new NoSuchElementException();
 			}
 			Set<T> currentCombination = new HashSet<>(1 + currentComboSize * 4
@@ -982,33 +982,6 @@ public final class Combinatorics {
 	}
 
 	/*
-	 Check that the interval permits at least one integer between zero and the
-	 specified maximum combination size, and no integer less than zero or greater
-	 than the maximum combination size.
-	 */
-	private static void validateInterval(Interval<Integer> interval,
-			int maxCombinationSize) {
-		Integer lower = interval.getLowerEndpoint();
-		if (lower == null || lower < 0) {
-			throw new IllegalArgumentException(
-					"The lower endpoint of chooseInterval must be non-negative.");
-		}
-		Integer upper = interval.getUpperEndpoint();
-		if (upper == null || upper > maxCombinationSize) {
-			throw new IllegalArgumentException(
-					"The upper endpoint of chooseInterval cannot be greater than the size of sourceElements.");
-		}
-		// Check that the interval is not an empty set (which does not permit
-		// any integers at all).
-		if (upper < lower || upper - lower < 2) {
-			if (!interval.includes(lower) && !interval.includes(upper)) {
-				throw new IllegalArgumentException(
-						"chooseInterval cannot be an empty set.");
-			}
-		}
-	}
-
-	/*
 	 Private method to contain the code used by the public overloaded methods.
 	 No need to validate parameters, as the public methods should validate them
 	 before calling this private method.
@@ -1041,6 +1014,8 @@ public final class Combinatorics {
 		}
 		return allCombinations;
 	}
+	
+	// TODO: Create an iterator of sorted combinations.
 
 	/*
 	 *** PERMUTATION METHODS ***
@@ -1142,10 +1117,10 @@ public final class Combinatorics {
 	 * {@link #permutations(java.util.Set)} method do not apply. However, be
 	 * aware that the total number of permutations is equal to the factorial of
 	 * the number of elements in the provided set. The factorial function grows
-	 * at a rate faster than a base-two exponential function: a set of size
-	 * ten will produce more than three million (3.6⏨6) permutations; a set of
-	 * size fifteen will produce more than a trillion permutations (1.3⏨12); and
-	 * a set of size twenty will produce more than two quintillion permutations
+	 * at a rate faster than a base-two exponential function: a set of size ten
+	 * will produce more than three million (3.6⏨6) permutations; a set of size
+	 * fifteen will produce more than a trillion permutations (1.3⏨12); and a
+	 * set of size twenty will produce more than two quintillion permutations
 	 * (2.4⏨18).
 	 * </p>
 	 * <p>
@@ -1197,6 +1172,7 @@ public final class Combinatorics {
 		/**
 		 * Constructs a new <code>PermutationsIterator</code> which will iterate
 		 * through the permutations of the supplied set.
+		 *
 		 * @param sourceElements a <code>Set&lt;T&gt;</code> which must not be
 		 * <code>null</code>, must not be empty, and must not contain a
 		 * <code>null</code> element.
@@ -1276,6 +1252,37 @@ public final class Combinatorics {
 				throw new NoSuchElementException();
 			}
 			return perm;
+		}
+	}
+
+	/*
+	 *** COMMON METHODS ***
+	 */
+	
+	/*
+	 Check that the interval permits at least one integer between zero and the
+	 specified maximum combination size, and no integer less than zero or greater
+	 than the maximum combination size.
+	 */
+	private static void validateInterval(Interval<Integer> interval,
+			int maxCombinationSize) {
+		Integer lower = interval.getLowerEndpoint();
+		if (lower == null || lower < 0) {
+			throw new IllegalArgumentException(
+					"The lower endpoint of chooseInterval must be non-negative.");
+		}
+		Integer upper = interval.getUpperEndpoint();
+		if (upper == null || upper > maxCombinationSize) {
+			throw new IllegalArgumentException(
+					"The upper endpoint of chooseInterval cannot be greater than the size of sourceElements.");
+		}
+		// Check that the interval is not an empty set (which does not permit
+		// any integers at all).
+		if (upper < lower || upper - lower < 2) {
+			if (!interval.includes(lower) && !interval.includes(upper)) {
+				throw new IllegalArgumentException(
+						"chooseInterval cannot be an empty set.");
+			}
 		}
 	}
 }
