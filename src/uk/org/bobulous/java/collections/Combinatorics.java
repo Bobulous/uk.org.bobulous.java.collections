@@ -22,8 +22,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import uk.org.bobulous.java.intervals.GenericInterval;
 import uk.org.bobulous.java.intervals.Interval;
+import uk.org.bobulous.java.intervals.IntegerInterval;
 
 /**
  * A utility class which provides static methods related to enumerative
@@ -486,8 +486,7 @@ public final class Combinatorics {
 					"Parameter choose cannot be greater than the size of sourceElements.");
 		}
 		return generateCombinations(sourceElements, false,
-				new GenericInterval<>(choose,
-						choose));
+				IntegerInterval.closed(choose, choose));
 	}
 
 	/**
@@ -668,7 +667,7 @@ public final class Combinatorics {
 			throw new IllegalArgumentException(
 					"chooseSize cannot be greater than the size of sourceElements.");
 		}
-		return new CombinationsIterator(sourceElements, new GenericInterval<>(
+		return new CombinationsIterator(sourceElements, IntegerInterval.closed(
 				chooseSize, chooseSize));
 	}
 
@@ -925,7 +924,7 @@ public final class Combinatorics {
 					"Parameter choose cannot be greater than the size of sourceElements.");
 		}
 		return generateCombinationsSorted(sourceElements, false,
-				new GenericInterval<>(choose, choose));
+				IntegerInterval.closed(choose, choose));
 	}
 
 	/**
@@ -1260,7 +1259,7 @@ public final class Combinatorics {
 	 */
 	
 	/*
-	 Check that the interval permits at least one integer between zero and the
+	 Check that the interval permits at least one integer from zero to the
 	 specified maximum combination size, and no integer less than zero or greater
 	 than the maximum combination size.
 	 */
