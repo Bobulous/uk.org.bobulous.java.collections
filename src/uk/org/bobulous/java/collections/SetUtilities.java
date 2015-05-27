@@ -48,4 +48,31 @@ public final class SetUtilities {
 			return false;
 		}
 	}
+	
+	/**
+	 * Returns the ideal capacity for a <code>HashSet</code> which needs to be
+	 * able to hold exactly the given number of elements, when the default load
+	 * factor of 0.75 is used.
+	 * <p>
+	 * The number returned is the capacity which should be given to the
+	 * <code>HashSet</code> constructor in order that it has exactly sufficient
+	 * capacity to hold the actual number of elements without the need to resize
+	 * itself.</p>
+	 *
+	 * @param actualElementCount the actual number of elements which the set
+	 * will need to be able to hold.
+	 * @return the ideal capacity to provide to the <code>HashSet</code>
+	 * constructor.
+	 */
+	public static final int idealCapacity(int actualElementCount) {
+		if(actualElementCount == 0) {
+			return 0;
+		}
+		if (actualElementCount < 0) {
+			throw new IllegalArgumentException(
+					"actualElementCount cannot be negative.");
+		}
+		long idealSetCapacity = 1L + actualElementCount * 4L / 3L;
+		return idealSetCapacity > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) idealSetCapacity;
+	}
 }
